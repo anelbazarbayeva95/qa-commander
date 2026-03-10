@@ -1,0 +1,65 @@
+{
+  "run_id": "20260310_011343",
+  "start_url": "https://example.com",
+  "max_steps": 3,
+  "clicked_history": [
+    "Learn more",
+    "IANA-managed Reserved Domains",
+    "Overview"
+  ],
+  "steps": [
+    {
+      "step": 1,
+      "before_url": "https://example.com/",
+      "selected_element": "Learn more",
+      "screenshot": "screenshots/run_20260310_011343/step_1.png",
+      "status": "WARNING",
+      "after_url": "https://www.iana.org/help/example-domains",
+      "console_errors": [
+        {
+          "type": "error",
+          "text": "Failed to load resource: the server responded with a status of 404 ()",
+          "location": {
+            "url": "https://example.com/favicon.ico",
+            "lineNumber": 0,
+            "columnNumber": 0
+          },
+          "page_url": "https://example.com/"
+        }
+      ],
+      "network_failures": [],
+      "visual_flags": [
+        "Navigated away from expected origin: www.iana.org",
+        "Console errors detected after navigation."
+      ]
+    },
+    {
+      "step": 2,
+      "before_url": "https://www.iana.org/help/example-domains",
+      "selected_element": "IANA-managed Reserved Domains",
+      "screenshot": "screenshots/run_20260310_011343/step_2.png",
+      "status": "PASS",
+      "after_url": "https://www.iana.org/domains/reserved",
+      "console_errors": [],
+      "network_failures": [],
+      "visual_flags": [
+        "Navigated away from expected origin: www.iana.org"
+      ]
+    },
+    {
+      "step": 3,
+      "before_url": "https://www.iana.org/domains/reserved",
+      "selected_element": "Overview",
+      "screenshot": "screenshots/run_20260310_011343/step_3.png",
+      "status": "PASS",
+      "after_url": "https://www.iana.org/domains",
+      "console_errors": [],
+      "network_failures": [],
+      "visual_flags": [
+        "Navigated away from expected origin: www.iana.org"
+      ]
+    }
+  ],
+  "console_event_count": 1,
+  "network_failure_count": 0
+}

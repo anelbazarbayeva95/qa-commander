@@ -1,0 +1,93 @@
+{
+  "run_id": "20260310_013435",
+  "start_url": "https://example.com",
+  "max_steps": 3,
+  "clicked_history": [
+    "Learn more",
+    "IANA-managed Reserved Domains",
+    "RFC 2606"
+  ],
+  "steps": [
+    {
+      "step": 1,
+      "before_url": "https://example.com/",
+      "selected_element": "Learn more",
+      "screenshot": "screenshots/run_20260310_013435/step_1.png",
+      "status": "WARNING",
+      "after_url": "https://www.iana.org/help/example-domains",
+      "console_errors": [
+        {
+          "type": "error",
+          "text": "Failed to load resource: the server responded with a status of 404 ()",
+          "location": {
+            "url": "https://example.com/favicon.ico",
+            "lineNumber": 0,
+            "columnNumber": 0
+          },
+          "page_url": "https://example.com/"
+        }
+      ],
+      "network_failures": [],
+      "visual_flags": [
+        "Console errors detected after navigation."
+      ]
+    },
+    {
+      "step": 2,
+      "before_url": "https://www.iana.org/help/example-domains",
+      "selected_element": "IANA-managed Reserved Domains",
+      "screenshot": "screenshots/run_20260310_013435/step_2.png",
+      "status": "PASS",
+      "after_url": "https://www.iana.org/domains/reserved",
+      "console_errors": [],
+      "network_failures": [],
+      "visual_flags": []
+    },
+    {
+      "step": 3,
+      "before_url": "https://www.iana.org/domains/reserved",
+      "selected_element": "RFC 2606",
+      "screenshot": "screenshots/run_20260310_013435/step_3.png",
+      "status": "WARNING",
+      "after_url": "https://datatracker.ietf.org/doc/html/rfc2606",
+      "console_errors": [
+        {
+          "type": "error",
+          "text": "Failed to load resource: the server responded with a status of 403 ()",
+          "location": {
+            "url": "https://datatracker.ietf.org/doc/html/rfc2606",
+            "lineNumber": 0,
+            "columnNumber": 0
+          },
+          "page_url": "https://datatracker.ietf.org/doc/html/rfc2606"
+        },
+        {
+          "type": "error",
+          "text": "Failed to load resource: the server responded with a status of 403 ()",
+          "location": {
+            "url": "https://datatracker.ietf.org/favicon.ico",
+            "lineNumber": 0,
+            "columnNumber": 0
+          },
+          "page_url": "https://datatracker.ietf.org/doc/html/rfc2606"
+        },
+        {
+          "type": "error",
+          "text": "Failed to load resource: the server responded with a status of 403 ()",
+          "location": {
+            "url": "https://datatracker.ietf.org/favicon.ico",
+            "lineNumber": 0,
+            "columnNumber": 0
+          },
+          "page_url": "https://datatracker.ietf.org/doc/html/rfc2606"
+        }
+      ],
+      "network_failures": [],
+      "visual_flags": [
+        "Console errors detected after navigation."
+      ]
+    }
+  ],
+  "console_event_count": 4,
+  "network_failure_count": 0
+}

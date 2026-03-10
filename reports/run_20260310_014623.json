@@ -1,0 +1,117 @@
+{
+  "run_id": "20260310_014623",
+  "start_url": "https://example.com",
+  "max_steps": 3,
+  "clicked_history": [
+    "Learn more",
+    "RFC 2606"
+  ],
+  "steps": [
+    {
+      "step": 1,
+      "before_url": "https://example.com/",
+      "selected_element": "Learn more",
+      "screenshot": "screenshots/run_20260310_014623/step_1.png",
+      "status": "WARNING",
+      "after_url": "https://www.iana.org/help/example-domains",
+      "console_errors": [
+        {
+          "type": "error",
+          "text": "Failed to load resource: the server responded with a status of 404 ()",
+          "location": {
+            "url": "https://example.com/favicon.ico",
+            "lineNumber": 0,
+            "columnNumber": 0
+          },
+          "page_url": "https://example.com/"
+        }
+      ],
+      "network_failures": [],
+      "visual_flags": [
+        "Console errors detected after navigation."
+      ],
+      "issue_title": "404 Console Error Detected on IANA Example Domains Page",
+      "severity": "MEDIUM",
+      "expected_result": "After clicking \"Learn more\", the destination page should load completely without any console errors.",
+      "actual_result": "After clicking \"Learn more\", the destination page loaded, but a 404 console error occurred for a resource.",
+      "likely_cause": "A resource referenced on the `iana.org` page is missing or has an incorrect path, leading to a 404 error."
+    },
+    {
+      "step": 2,
+      "before_url": "https://www.iana.org/help/example-domains",
+      "selected_element": "RFC 2606",
+      "screenshot": "screenshots/run_20260310_014623/step_2.png",
+      "status": "WARNING",
+      "after_url": "https://datatracker.ietf.org/doc/html/rfc2606",
+      "console_errors": [
+        {
+          "type": "error",
+          "text": "Failed to load resource: the server responded with a status of 403 ()",
+          "location": {
+            "url": "https://datatracker.ietf.org/doc/html/rfc2606",
+            "lineNumber": 0,
+            "columnNumber": 0
+          },
+          "page_url": "https://datatracker.ietf.org/doc/html/rfc2606"
+        },
+        {
+          "type": "error",
+          "text": "Failed to load resource: the server responded with a status of 403 ()",
+          "location": {
+            "url": "https://datatracker.ietf.org/favicon.ico",
+            "lineNumber": 0,
+            "columnNumber": 0
+          },
+          "page_url": "https://datatracker.ietf.org/doc/html/rfc2606"
+        },
+        {
+          "type": "error",
+          "text": "Failed to load resource: the server responded with a status of 403 ()",
+          "location": {
+            "url": "https://datatracker.ietf.org/favicon.ico",
+            "lineNumber": 0,
+            "columnNumber": 0
+          },
+          "page_url": "https://datatracker.ietf.org/doc/html/rfc2606"
+        }
+      ],
+      "network_failures": [],
+      "visual_flags": [
+        "Console errors detected after navigation."
+      ],
+      "issue_title": "RFC 2606 page fails to load resources with 403 (Forbidden) errors",
+      "severity": "MEDIUM",
+      "expected_result": "Upon clicking 'RFC 2606', the user should be navigated to the document, and all page resources should load successfully without console errors.",
+      "actual_result": "The user navigates to the RFC 2606 document, but multiple resources fail to load with 403 (Forbidden) console errors after navigation.",
+      "likely_cause": "The server is likely misconfigured, preventing authorized access to specific page resources needed for the page to render correctly."
+    },
+    {
+      "step": 3,
+      "before_url": "https://datatracker.ietf.org/doc/html/rfc2606",
+      "selected_element": "Verify you are human",
+      "screenshot": "screenshots/run_20260310_014623/step_3.png",
+      "status": "FAIL",
+      "after_url": "https://datatracker.ietf.org/doc/html/rfc2606",
+      "console_errors": [],
+      "network_failures": [],
+      "visual_flags": [
+        "Playwright could not click the selected element."
+      ],
+      "issue_title": "No issue detected",
+      "severity": "LOW",
+      "expected_result": "The selected page should load correctly after the click.",
+      "actual_result": "No critical issue detected.",
+      "likely_cause": "No obvious issue detected.",
+      "error": "Could not click element: Verify you are human"
+    }
+  ],
+  "console_event_count": 196,
+  "network_failure_count": 0,
+  "summary": {
+    "total_steps_completed": 3,
+    "pass_count": 0,
+    "warning_count": 2,
+    "fail_count": 1,
+    "stopped_count": 0
+  }
+}
