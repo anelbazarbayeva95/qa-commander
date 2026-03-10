@@ -4,36 +4,39 @@ from playwright.sync_api import sync_playwright
 
 client = genai.Client(api_key=os.environ["GEMINI_API_KEY"])
 
-# Step 1 — open browser
+PROMPT = """
+You are a QA testing agent.
+Look at this webpage screenshot and identify the single best clickable element to test next.
+Return ONLY the exact visible text of the clickable element.
+If there is no clickable element, return NONE.
+Do not include explanations.
+"""
+
 with sync_playwright() as p:
     browser = p.chromium.launch(headless=False)
     page = browser.new_page()
 
     page.goto("https://example.com")
+    page.screenshot(path="page_before.png")
+    print("Initial screenshot captured")
 
-    # Step 2 — take screenshot
-    page.screenshot(path="page.png")
+    uploaded_file = client.files.upload(file="page_before.png")
 
-    print("Screenshot captured")
+    response = client.models.generate_content(
+        model="gemini-2.5-flash",
+        contents=[PROMPT, uploaded_file],
+    )
+
+    target_text = response.text.strip()
+    print("\nAI selected element to click:\n")
+    print(target_text)
+
+    if target_text == "NONE":
+        print("\nNo clickable element found. Stopping.")
+    else:
+        page.get_by_text(target_text, exact=False).first.click()
+        page.wait_for_timeout(2000)
+        page.screenshot(path="page_after.png")
+        print("\nClicked element and saved page_after.png")
 
     browser.close()
-
-# Step 3 — upload screenshot to Gemini
-uploaded_file = client.files.upload(file="page.png")
-
-response = client.models.generate_content(
-    model="gemini-2.5-flash",
-    contents=[
-        """
-You are a QA testing agent.
-Look at this webpage screenshot and list any clickable elements like buttons or links.
-Return ONLY the clickable element names.
-One per line.
-Do not include explanations.
-""",
-        uploaded_file,
-    ],
-)
-
-print("\nAI detected clickable elements:\n")
-print(response.text)
