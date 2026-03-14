@@ -44,7 +44,7 @@ ACTUAL_RESULT: one sentence
 LIKELY_CAUSE: one sentence
 """
 
-MAX_STEPS = 3
+MAX_STEPS = int(os.environ.get("MAX_STEPS", "3"))
 clicked_history = []
 run_log = []
 
@@ -143,7 +143,9 @@ with sync_playwright() as p:
     page.on("console", handle_console)
     page.on("requestfailed", handle_request_failed)
 
-    start_url = "https://example.com"
+    start_url = os.environ.get("TARGET_URL", "https://example.com")
+    if not start_url.startswith(("http://", "https://")):
+        start_url = "https://" + start_url
     page.goto(start_url)
 
     for step in range(1, MAX_STEPS + 1):
