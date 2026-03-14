@@ -144,6 +144,8 @@ with sync_playwright() as p:
     page.on("requestfailed", handle_request_failed)
 
     start_url = os.environ.get("TARGET_URL", "https://example.com")
+    if not start_url.startswith(("http://", "https://")):
+        start_url = "https://" + start_url
     page.goto(start_url)
 
     for step in range(1, MAX_STEPS + 1):

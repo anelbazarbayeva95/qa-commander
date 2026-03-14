@@ -94,13 +94,21 @@ class PlaywrightBrowser:
         self.console_events: list[dict] = []
         self.network_failures: list[dict] = []
 
+    @staticmethod
+    def _normalise_url(url: str) -> str:
+        """Ensure URL has a scheme so Playwright can navigate."""
+        url = url.strip()
+        if not url.startswith(("http://", "https://")):
+            url = "https://" + url
+        return url
+
     def start(self) -> None:
         self._playwright = sync_playwright().start()
         self._browser = self._playwright.chromium.launch(headless=self.headless)
         self.page = self._browser.new_page()
         self.page.on("console", self._handle_console)
         self.page.on("requestfailed", self._handle_request_failed)
-        self.page.goto(self.target_url)
+        self.page.goto(self._normalise_url(self.target_url))
         self.page.wait_for_timeout(2000)
 
     def stop(self) -> None:
