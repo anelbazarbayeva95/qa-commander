@@ -330,7 +330,16 @@ with st.sidebar:
     st.markdown('<div class="section-header" style="margin-top:20px">🎙️ Voice Command</div>',
                 unsafe_allow_html=True)
     st.caption("Record an instruction — the agent hears and acts on it")
-    audio_input = st.audio_input("Speak your test instruction", key="voice_cmd")
+    st.markdown(
+        '<div style="font-size:11px;color:#e3b341;margin-bottom:6px">'
+        '⚠️ Allow microphone access in your browser if prompted</div>',
+        unsafe_allow_html=True,
+    )
+    try:
+        audio_input = st.audio_input("Speak your test instruction", key="voice_cmd")
+    except Exception:
+        audio_input = None
+        st.caption("🎙️ Mic unavailable — use text command below")
 
     st.markdown('<div class="section-header" style="margin-top:16px">⌨️ Text Command</div>',
                 unsafe_allow_html=True)
@@ -407,7 +416,12 @@ if run_btn and not st.session_state.running:
 
     user_audio: bytes | None = None
     if audio_input is not None:
-        user_audio = audio_input.read()
+        try:
+            audio_bytes = audio_input.read()
+            user_audio = audio_bytes if audio_bytes else None
+        except Exception:
+            user_audio = None
+    if user_audio:
         st.session_state.conversation.append({
             "role": "user",
             "content": "🎙️ Voice command recorded",
