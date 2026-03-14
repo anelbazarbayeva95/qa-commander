@@ -23,7 +23,7 @@ from urllib.parse import urlparse
 
 from playwright.sync_api import sync_playwright, Page
 
-from gemini_live import LiveTurnResult, run_live_session_sync
+from gemini_live import LiveTurnResult, ParsedFinding, run_live_session_sync
 
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
 REPORTS_DIR = PROJECT_ROOT / "reports"
@@ -45,6 +45,7 @@ class StepRecord:
     console_errors: list[dict] = field(default_factory=list)
     network_failures: list[dict] = field(default_factory=list)
     visual_flags: list[str] = field(default_factory=list)
+    findings: list[ParsedFinding] = field(default_factory=list)
     error: str = ""
 
 
@@ -80,6 +81,34 @@ class QARunResult:
             "fail": sum(1 for s in self.steps if s.status == "FAIL"),
             "done": sum(1 for s in self.steps if s.status == "DONE"),
         }
+
+    @property
+    def all_findings(self) -> list[ParsedFinding]:
+        seen = set()
+        out = []
+        for s in self.steps:
+            for f in s.findings:
+                key = (f.kind, f.title)
+                if key not in seen:
+                    seen.add(key)
+                    out.append(f)
+        return out
+
+    @property
+    def all_bugs(self) -> list[ParsedFinding]:
+        return [f for f in self.all_findings if f.kind == "bug"]
+
+    @property
+    def all_ux_issues(self) -> list[ParsedFinding]:
+        return [f for f in self.all_findings if f.kind == "ux_issue"]
+
+    @property
+    def all_suggestions(self) -> list[ParsedFinding]:
+        return [f for f in self.all_findings if f.kind == "suggestion"]
+
+    @property
+    def critical_count(self) -> int:
+        return sum(1 for f in self.all_bugs if f.severity.lower() == "critical")
 
 
 class PlaywrightBrowser:
@@ -231,6 +260,10 @@ def _write_reports(
                 "console_errors": len(s.console_errors),
                 "network_failures": len(s.network_failures),
                 "visual_flags": s.visual_flags,
+                "findings": [
+                    {"kind": f.kind, "title": f.title, "severity": f.severity, "description": f.description}
+                    for f in s.findings
+                ],
                 "error": s.error,
             }
             for s in steps
@@ -259,6 +292,15 @@ def _write_reports(
             if s.visual_flags:
                 for flag in s.visual_flags:
                     f.write(f"- ⚑ {flag}\n")
+            if s.findings:
+                f.write("\n**Findings:**\n")
+                for finding in s.findings:
+                    if finding.kind == "bug":
+                        f.write(f"- 🐛 **BUG [{finding.severity}]** {finding.title}: {finding.description}\n")
+                    elif finding.kind == "ux_issue":
+                        f.write(f"- ⚠️ **UX [{finding.severity}]** {finding.title}: {finding.description}\n")
+                    else:
+                        f.write(f"- 💡 **SUGGESTION** {finding.title}: {finding.description}\n")
             if s.agent_narration:
                 f.write(f"\n**Agent:** {s.agent_narration}\n")
             if s.error:
@@ -318,7 +360,6 @@ def run_live_agent(
             before_url = browser.current_url()
             had_error = bool(result.error)
 
-            # Check for out-of-origin navigation
             visual_flags: list[str] = []
             after_url = browser.current_url()
             if after_url != before_url:
@@ -352,11 +393,12 @@ def run_live_agent(
                 screenshot=screenshot_path,
                 click_target=result.click_target,
                 status=status,
-                agent_narration=result.text,
+                agent_narration=result.narration,
                 audio_wav=result.audio_wav,
                 console_errors=console_errs,
                 network_failures=net_failures,
                 visual_flags=visual_flags,
+                findings=result.findings,
                 error=result.error,
             )
             steps.append(record)
