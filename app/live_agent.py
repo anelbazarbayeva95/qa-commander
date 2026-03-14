@@ -260,6 +260,10 @@ def _write_reports(
                 "console_errors": len(s.console_errors),
                 "network_failures": len(s.network_failures),
                 "visual_flags": s.visual_flags,
+                "findings": [
+                    {"kind": f.kind, "title": f.title, "severity": f.severity, "description": f.description}
+                    for f in s.findings
+                ],
                 "error": s.error,
             }
             for s in steps
@@ -288,6 +292,15 @@ def _write_reports(
             if s.visual_flags:
                 for flag in s.visual_flags:
                     f.write(f"- ⚑ {flag}\n")
+            if s.findings:
+                f.write("\n**Findings:**\n")
+                for finding in s.findings:
+                    if finding.kind == "bug":
+                        f.write(f"- 🐛 **BUG [{finding.severity}]** {finding.title}: {finding.description}\n")
+                    elif finding.kind == "ux_issue":
+                        f.write(f"- ⚠️ **UX [{finding.severity}]** {finding.title}: {finding.description}\n")
+                    else:
+                        f.write(f"- 💡 **SUGGESTION** {finding.title}: {finding.description}\n")
             if s.agent_narration:
                 f.write(f"\n**Agent:** {s.agent_narration}\n")
             if s.error:
@@ -347,7 +360,6 @@ def run_live_agent(
             before_url = browser.current_url()
             had_error = bool(result.error)
 
-            # Check for out-of-origin navigation
             visual_flags: list[str] = []
             after_url = browser.current_url()
             if after_url != before_url:

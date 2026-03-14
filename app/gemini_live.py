@@ -4,7 +4,7 @@ Provides a real-time multimodal session using the Gemini Live API:
 - Sends screenshots (vision / see)
 - Sends user audio from microphone (hear)
 - Receives spoken agent narration (speak)
-- Receives structured UX/bug analysis (create)
+- Receives structured findings for report generation (create)
 """
 
 from __future__ import annotations
@@ -48,13 +48,24 @@ For every screenshot you analyse, you MUST identify:
    - Mobile-unfriendly patterns (tiny tap targets, horizontal scroll)
    - Missing feedback states (loading, success, error)
 
-3. ACCESSIBILITY ISSUES
-   - Low contrast text
+3. BAD DESIGN PATTERNS — aesthetic and design quality issues
+   - Visual clutter and information overload (Craigslist-style dense layouts)
+   - Poor typography: wrong font sizes, low contrast, unreadable text, too many font styles
+   - Color abuse: clashing colors, excessive color variety, no coherent color system
+   - Outdated design aesthetics: table-based layouts, mismatched styles
+   - Lack of whitespace: cramped, dense, overwhelming layouts
+   - Inconsistent alignment and grid violations
+   - Poor spacing rhythm between elements
+   - No clear design language or visual identity
+
+4. ACCESSIBILITY ISSUES
+   - Low contrast text (below WCAG AA 4.5:1 ratio)
    - Missing focus indicators
    - Images without alt text
    - Forms without labels
+   - Small click targets (below 44x44px)
 
-4. UX SUGGESTIONS — actionable improvements
+5. UX SUGGESTIONS — actionable improvements
    - Specific, concrete, implementable changes
    - Reference industry standards (Nielsen heuristics, WCAG)
 
@@ -272,7 +283,8 @@ async def run_live_qa_session(
             if step == 1:
                 intro = (
                     f"Perform a comprehensive QA and UX audit of: {target_url}\n"
-                    "Analyse every visible element for bugs, UX issues, accessibility problems, and suggest concrete improvements.\n"
+                    "Analyse every visible element for bugs, UX issues, bad design patterns, "
+                    "accessibility problems, and suggest concrete improvements.\n"
                 )
                 if user_text:
                     intro += f"Tester focus area: {user_text}\n"

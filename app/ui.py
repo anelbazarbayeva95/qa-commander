@@ -1,11 +1,4 @@
-"""QA Commander Live — Streamlit UI.
-
-A multimodal live QA agent that:
-  👁  Sees   — watches web interfaces via real-time screenshots
-  👂  Hears  — listens to tester voice commands (microphone)
-  🔊  Speaks — narrates findings via Gemini Live audio output
-  📋  Creates — generates actionable bug reports in real time
-"""
+"""QA Commander Live — Streamlit UI."""
 
 from __future__ import annotations
 
@@ -27,233 +20,175 @@ SCREENSHOTS_DIR = PROJECT_ROOT / "screenshots"
 # ── Page config ────────────────────────────────────────────────────────────────
 
 st.set_page_config(
-    page_title="QA Commander Live",
-    page_icon="🔬",
+    page_title="QA Commander",
+    page_icon="⬡",
     layout="wide",
     initial_sidebar_state="expanded",
 )
 
-# ── Design system ──────────────────────────────────────────────────────────────
+# ── Custom CSS ─────────────────────────────────────────────────────────────────
 
-st.markdown("""
-<style>
-/* ── Global ── */
-[data-testid="stAppViewContainer"] { background: #0d1117; }
-[data-testid="stSidebar"] { background: #161b22 !important; border-right: 1px solid #30363d; }
-[data-testid="stSidebar"] * { color: #c9d1d9 !important; }
-h1,h2,h3,h4 { color: #e6edf3 !important; }
-p, li, label { color: #8b949e !important; }
-[data-testid="stMarkdownContainer"] p { color: #8b949e; }
+st.markdown(
+    """
+    <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
 
-/* ── Hero banner ── */
-.hero {
-    background: linear-gradient(135deg, #0d1117 0%, #161b22 50%, #0d1117 100%);
-    border: 1px solid #30363d;
-    border-radius: 12px;
-    padding: 28px 32px;
-    margin-bottom: 24px;
-    position: relative;
-    overflow: hidden;
-}
-.hero::before {
-    content: '';
-    position: absolute; top: 0; left: 0; right: 0; height: 2px;
-    background: linear-gradient(90deg, #1f6feb, #58a6ff, #79c0ff, #1f6feb);
-}
-.hero-title {
-    font-size: 28px; font-weight: 700;
-    color: #e6edf3 !important;
-    margin: 0 0 6px 0;
-    letter-spacing: -0.5px;
-}
-.hero-sub {
-    font-size: 14px; color: #8b949e !important;
-    margin: 0;
-}
-.hero-pills { margin-top: 14px; display: flex; gap: 8px; flex-wrap: wrap; }
-.pill {
-    display: inline-flex; align-items: center; gap: 6px;
-    background: #21262d; border: 1px solid #30363d;
-    border-radius: 20px; padding: 4px 12px;
-    font-size: 12px; color: #8b949e !important;
-    font-weight: 500;
-}
-.pill-live { border-color: #238636; color: #3fb950 !important; background: #0f2a14; }
+    html, body, [class*="css"] {
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    }
 
-/* ── Metric cards ── */
-.metrics-row { display: flex; gap: 12px; margin-bottom: 20px; }
-.metric-card {
-    flex: 1;
-    background: #161b22;
-    border: 1px solid #30363d;
-    border-radius: 10px;
-    padding: 16px 20px;
-    text-align: center;
-}
-.metric-card.critical { border-color: #da3633; background: #1a0a0a; }
-.metric-card.high     { border-color: #d29922; background: #1a1400; }
-.metric-card.medium   { border-color: #1f6feb; background: #0a1628; }
-.metric-card.good     { border-color: #238636; background: #0a1f0a; }
-.metric-num {
-    font-size: 36px; font-weight: 700; line-height: 1;
-    margin-bottom: 4px;
-}
-.metric-num.red    { color: #f85149 !important; }
-.metric-num.yellow { color: #e3b341 !important; }
-.metric-num.blue   { color: #58a6ff !important; }
-.metric-num.green  { color: #3fb950 !important; }
-.metric-label { font-size: 11px; color: #8b949e !important; text-transform: uppercase; letter-spacing: 0.8px; }
+    /* Hide Streamlit default chrome */
+    #MainMenu { visibility: hidden; }
+    footer { visibility: hidden; }
+    header { visibility: hidden; }
 
-/* ── Severity badges ── */
-.badge {
-    display: inline-block; border-radius: 4px;
-    padding: 2px 8px; font-size: 11px; font-weight: 700;
-    text-transform: uppercase; letter-spacing: 0.5px;
-}
-.badge-critical { background: #da3633; color: #fff !important; }
-.badge-high     { background: #d29922; color: #0d1117 !important; }
-.badge-medium   { background: #1f6feb; color: #fff !important; }
-.badge-low      { background: #30363d; color: #8b949e !important; }
+    /* Main background */
+    .stApp {
+        background-color: #09090b;
+    }
 
-/* ── Issue cards ── */
-.issue-card {
-    background: #161b22;
-    border: 1px solid #30363d;
-    border-radius: 8px;
-    padding: 14px 16px;
-    margin-bottom: 8px;
-}
-.issue-card.critical { border-left: 3px solid #f85149; }
-.issue-card.high     { border-left: 3px solid #e3b341; }
-.issue-card.medium   { border-left: 3px solid #58a6ff; }
-.issue-card.low      { border-left: 3px solid #30363d; }
-.issue-title { font-size: 14px; font-weight: 600; color: #e6edf3 !important; margin-bottom: 4px; }
-.issue-desc  { font-size: 13px; color: #8b949e !important; margin: 0; }
-.issue-type  { font-size: 10px; color: #8b949e !important; text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 6px; }
+    /* Sidebar */
+    [data-testid="stSidebar"] {
+        background-color: #0f0f11;
+        border-right: 1px solid #1e1e23;
+    }
 
-/* ── Suggestion cards ── */
-.suggestion-card {
-    background: #0a1628;
-    border: 1px solid #1f6feb44;
-    border-left: 3px solid #58a6ff;
-    border-radius: 8px;
-    padding: 14px 16px;
-    margin-bottom: 8px;
-}
-.suggestion-title { font-size: 14px; font-weight: 600; color: #79c0ff !important; margin-bottom: 4px; }
-.suggestion-desc  { font-size: 13px; color: #8b949e !important; margin: 0; }
+    /* Finding cards */
+    .finding-bug-critical {
+        background: #1a0a0a;
+        border-left: 3px solid #ef4444;
+        border-radius: 6px;
+        padding: 12px 16px;
+        margin: 6px 0;
+    }
+    .finding-bug-high {
+        background: #160e07;
+        border-left: 3px solid #f97316;
+        border-radius: 6px;
+        padding: 12px 16px;
+        margin: 6px 0;
+    }
+    .finding-bug-medium {
+        background: #14110a;
+        border-left: 3px solid #f59e0b;
+        border-radius: 6px;
+        padding: 12px 16px;
+        margin: 6px 0;
+    }
+    .finding-bug-low {
+        background: #0d1117;
+        border-left: 3px solid #6b7280;
+        border-radius: 6px;
+        padding: 12px 16px;
+        margin: 6px 0;
+    }
+    .finding-ux {
+        background: #0a0f1a;
+        border-left: 3px solid #3b82f6;
+        border-radius: 6px;
+        padding: 12px 16px;
+        margin: 6px 0;
+    }
+    .finding-suggestion {
+        background: #090f0e;
+        border-left: 3px solid #10b981;
+        border-radius: 6px;
+        padding: 12px 16px;
+        margin: 6px 0;
+    }
 
-/* ── Agent chat ── */
-.chat-agent {
-    background: #161b22;
-    border: 1px solid #30363d;
-    border-left: 3px solid #58a6ff;
-    border-radius: 8px;
-    padding: 14px 16px;
-    margin-bottom: 10px;
-}
-.chat-user {
-    background: #0f2a14;
-    border: 1px solid #238636;
-    border-left: 3px solid #3fb950;
-    border-radius: 8px;
-    padding: 14px 16px;
-    margin-bottom: 10px;
-}
-.chat-label { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 8px; }
-.chat-label-agent { color: #58a6ff !important; }
-.chat-label-user  { color: #3fb950 !important; }
-.chat-text { font-size: 14px; color: #c9d1d9 !important; line-height: 1.6; }
+    /* Severity badges */
+    .badge {
+        display: inline-block;
+        padding: 2px 8px;
+        border-radius: 4px;
+        font-size: 11px;
+        font-weight: 600;
+        letter-spacing: 0.05em;
+        text-transform: uppercase;
+    }
+    .badge-critical { background: #7f1d1d; color: #fca5a5; }
+    .badge-high     { background: #7c2d12; color: #fdba74; }
+    .badge-medium   { background: #78350f; color: #fcd34d; }
+    .badge-low      { background: #1f2937; color: #9ca3af; }
 
-/* ── Status bar ── */
-.status-bar {
-    background: #161b22;
-    border: 1px solid #30363d;
-    border-radius: 8px;
-    padding: 12px 16px;
-    margin-bottom: 16px;
-    display: flex;
-    align-items: center;
-    gap: 12px;
-}
-.status-dot {
-    width: 8px; height: 8px; border-radius: 50%;
-    display: inline-block;
-}
-.status-dot-idle    { background: #8b949e; }
-.status-dot-running { background: #3fb950; box-shadow: 0 0 8px #3fb950; animation: pulse 1.5s infinite; }
-.status-dot-done    { background: #58a6ff; }
-.status-dot-error   { background: #f85149; }
-@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
-.status-text { font-size: 13px; color: #c9d1d9 !important; }
+    /* Status badges */
+    .status-pass    { color: #22c55e; font-weight: 600; }
+    .status-warn    { color: #f59e0b; font-weight: 600; }
+    .status-fail    { color: #ef4444; font-weight: 600; }
+    .status-done    { color: #3b82f6; font-weight: 600; }
+    .status-stopped { color: #6b7280; font-weight: 600; }
 
-/* ── Section headers ── */
-.section-header {
-    font-size: 11px; font-weight: 700; text-transform: uppercase;
-    letter-spacing: 1px; color: #8b949e !important;
-    border-bottom: 1px solid #21262d;
-    padding-bottom: 8px; margin-bottom: 14px;
-}
+    /* Agent message */
+    .agent-turn {
+        background: #111115;
+        border: 1px solid #1e1e26;
+        border-radius: 8px;
+        padding: 14px 18px;
+        margin: 8px 0;
+    }
 
-/* ── Tab styling ── */
-[data-baseweb="tab-list"] { background: #161b22 !important; border-radius: 8px; }
-[data-baseweb="tab"] { color: #8b949e !important; }
-[aria-selected="true"] { color: #e6edf3 !important; }
+    /* Metric number */
+    .metric-num {
+        font-size: 32px;
+        font-weight: 700;
+        line-height: 1;
+    }
+    .metric-label {
+        font-size: 12px;
+        color: #71717a;
+        margin-top: 4px;
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+    }
 
-/* ── Buttons ── */
-.stButton > button {
-    background: #238636 !important;
-    border: 1px solid #2ea043 !important;
-    color: #fff !important;
-    font-weight: 600 !important;
-    border-radius: 6px !important;
-}
-.stButton > button:hover {
-    background: #2ea043 !important;
-}
+    /* Section label */
+    .section-label {
+        font-size: 11px;
+        font-weight: 600;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: #52525b;
+        margin: 20px 0 8px 0;
+    }
 
-/* ── Inputs ── */
-.stTextInput input, .stTextArea textarea {
-    background: #0d1117 !important;
-    border: 1px solid #30363d !important;
-    color: #e6edf3 !important;
-    border-radius: 6px !important;
-}
+    /* Override Streamlit tab styling */
+    .stTabs [data-baseweb="tab-list"] {
+        gap: 4px;
+        background: transparent;
+        border-bottom: 1px solid #1e1e23;
+    }
+    .stTabs [data-baseweb="tab"] {
+        background: transparent;
+        border: none;
+        color: #71717a;
+        font-size: 13px;
+        font-weight: 500;
+        padding: 8px 16px;
+    }
+    .stTabs [aria-selected="true"] {
+        background: transparent;
+        color: #fafafa;
+        border-bottom: 2px solid #3b82f6;
+    }
+    </style>
+    """,
+    unsafe_allow_html=True,
+)
 
-/* ── Code blocks ── */
-.stCode { background: #161b22 !important; }
+# ── Session state ───────────────────────────────────────────────────────────────
 
-/* ── Divider ── */
-hr { border-color: #21262d !important; }
-
-/* ── Expander ── */
-[data-testid="stExpander"] {
-    background: #161b22 !important;
-    border: 1px solid #30363d !important;
-    border-radius: 8px !important;
-}
-
-/* ── Download button ── */
-[data-testid="stDownloadButton"] button {
-    background: #21262d !important;
-    border: 1px solid #30363d !important;
-    color: #c9d1d9 !important;
-}
-</style>
-""", unsafe_allow_html=True)
-
-# ── Session state ──────────────────────────────────────────────────────────────
-
-for key, default in [
-    ("conversation", []),
-    ("run_result", None),
-    ("running", False),
-    ("agent_status", "idle"),
-]:
-    if key not in st.session_state:
-        st.session_state[key] = default
+if "conversation" not in st.session_state:
+    st.session_state.conversation: list[dict] = []
+if "run_result" not in st.session_state:
+    st.session_state.run_result: QARunResult | None = None
+if "running" not in st.session_state:
+    st.session_state.running = False
+if "latest_run_id" not in st.session_state:
+    st.session_state.latest_run_id: str | None = None
 
 # ── Helpers ────────────────────────────────────────────────────────────────────
+
 
 def get_report_files() -> list[Path]:
     if not REPORTS_DIR.exists():
@@ -262,392 +197,344 @@ def get_report_files() -> list[Path]:
 
 
 def severity_badge(severity: str) -> str:
-    s = severity.lower()
-    cls = {"critical": "badge-critical", "high": "badge-high", "medium": "badge-medium"}.get(s, "badge-low")
+    sev = severity.lower()
+    cls = {"critical": "badge-critical", "high": "badge-high", "medium": "badge-medium", "low": "badge-low"}.get(
+        sev, "badge-low"
+    )
     return f'<span class="badge {cls}">{severity}</span>'
 
 
-def issue_card_html(f: ParsedFinding) -> str:
-    sev = f.severity.lower() if f.severity else "low"
-    type_label = {"bug": "🐛 Bug", "ux_issue": "⚠️ UX Issue", "suggestion": "💡 Suggestion"}.get(f.kind, f.kind)
-    card_class = f"issue-card {sev}" if f.kind != "suggestion" else "suggestion-card"
-    title_class = "issue-title" if f.kind != "suggestion" else "suggestion-title"
-    desc_class = "issue-desc" if f.kind != "suggestion" else "suggestion-desc"
-
-    badge = severity_badge(f.severity) if f.severity and f.kind != "suggestion" else ""
-
-    return f"""
-<div class="{card_class}">
-  <div class="issue-type">{type_label} {badge}</div>
-  <div class="{title_class}">{f.title}</div>
-  <p class="{desc_class}">{f.description}</p>
-</div>"""
-
-
-def render_metrics(result: QARunResult) -> None:
-    bugs = result.all_bugs
-    ux = result.all_ux_issues
-    sugg = result.all_suggestions
-    critical = result.critical_count
-
-    st.markdown(f"""
-<div class="metrics-row">
-  <div class="metric-card critical">
-    <div class="metric-num red">{critical}</div>
-    <div class="metric-label">Critical Bugs</div>
-  </div>
-  <div class="metric-card high">
-    <div class="metric-num yellow">{len(bugs)}</div>
-    <div class="metric-label">Total Bugs</div>
-  </div>
-  <div class="metric-card medium">
-    <div class="metric-num blue">{len(ux)}</div>
-    <div class="metric-label">UX Issues</div>
-  </div>
-  <div class="metric-card good">
-    <div class="metric-num green">{len(sugg)}</div>
-    <div class="metric-label">Suggestions</div>
-  </div>
-</div>""", unsafe_allow_html=True)
+def finding_card(f: ParsedFinding) -> None:
+    if f.kind == "bug":
+        sev = f.severity.lower()
+        cls = f"finding-bug-{sev}" if sev in ("critical", "high", "medium", "low") else "finding-bug-medium"
+        badge = severity_badge(f.severity)
+        st.markdown(
+            f'<div class="{cls}"><strong>{f.title}</strong> {badge}'
+            f'<div style="color:#a1a1aa;font-size:13px;margin-top:4px">{f.description}</div></div>',
+            unsafe_allow_html=True,
+        )
+    elif f.kind == "ux_issue":
+        badge = severity_badge(f.severity) if f.severity else ""
+        st.markdown(
+            f'<div class="finding-ux"><strong>{f.title}</strong> {badge}'
+            f'<div style="color:#a1a1aa;font-size:13px;margin-top:4px">{f.description}</div></div>',
+            unsafe_allow_html=True,
+        )
+    else:
+        st.markdown(
+            f'<div class="finding-suggestion"><strong>{f.title}</strong>'
+            f'<div style="color:#a1a1aa;font-size:13px;margin-top:4px">{f.description}</div></div>',
+            unsafe_allow_html=True,
+        )
 
 
 # ── Sidebar ────────────────────────────────────────────────────────────────────
 
 with st.sidebar:
-    st.markdown("""
-<div style="display:flex;align-items:center;gap:10px;margin-bottom:4px">
-  <span style="font-size:22px">🔬</span>
-  <span style="font-size:18px;font-weight:700;color:#e6edf3">QA Commander</span>
-</div>
-<div style="font-size:12px;color:#8b949e;margin-bottom:20px">Powered by Gemini Live API</div>
-""", unsafe_allow_html=True)
-
-    st.markdown('<div class="section-header">⚙️ Configuration</div>', unsafe_allow_html=True)
-    target_url = st.text_input("Target URL", value="https://example.com", key="target_url",
-                               help="Enter the URL to audit")
-    max_steps = st.slider("Audit depth (steps)", min_value=1, max_value=8, value=3, key="max_steps")
-
-    st.markdown('<div class="section-header" style="margin-top:20px">🎙️ Voice Command</div>',
-                unsafe_allow_html=True)
-    st.caption("Record an instruction — the agent hears and acts on it")
     st.markdown(
-        '<div style="font-size:11px;color:#e3b341;margin-bottom:6px">'
-        '⚠️ Allow microphone access in your browser if prompted</div>',
+        '<div style="padding:4px 0 16px 0">'
+        '<span style="font-size:18px;font-weight:700;letter-spacing:-0.02em;color:#fafafa">QA Commander</span>'
+        '<span style="font-size:11px;color:#52525b;display:block;margin-top:2px">Powered by Gemini Live API</span>'
+        "</div>",
         unsafe_allow_html=True,
     )
+
+    st.divider()
+
+    st.markdown('<div class="section-label">Target</div>', unsafe_allow_html=True)
+    target_url = st.text_input("URL", value="https://example.com", key="target_url", label_visibility="collapsed")
+
+    st.markdown('<div class="section-label">Depth</div>', unsafe_allow_html=True)
+    max_steps = st.slider("Steps", min_value=1, max_value=8, value=3, key="max_steps", label_visibility="collapsed")
+    st.caption(f"{max_steps} interaction step{'s' if max_steps != 1 else ''}")
+
+    st.divider()
+
+    st.markdown('<div class="section-label">Voice Command</div>', unsafe_allow_html=True)
     try:
-        audio_input = st.audio_input("Speak your test instruction", key="voice_cmd")
+        audio_input = st.audio_input("Record instruction", key="voice_cmd", label_visibility="collapsed")
     except Exception:
         audio_input = None
-        st.caption("🎙️ Mic unavailable — use text command below")
+        st.caption("Microphone unavailable — use text below")
 
-    st.markdown('<div class="section-header" style="margin-top:16px">⌨️ Text Command</div>',
-                unsafe_allow_html=True)
+    st.markdown('<div class="section-label">Text Instruction</div>', unsafe_allow_html=True)
     text_cmd = st.text_area(
-        "Focus instruction",
-        placeholder="e.g. Check navigation links and CTAs",
+        "Instruction",
+        placeholder="e.g. Check all navigation links work",
         key="text_cmd",
         height=72,
         label_visibility="collapsed",
     )
 
-    st.markdown("<div style='height:12px'></div>", unsafe_allow_html=True)
+    st.divider()
+
     run_btn = st.button(
-        "🚀 Run QA Audit" if not st.session_state.running else "⏳ Running…",
+        "Run Agent",
         type="primary",
         use_container_width=True,
         disabled=st.session_state.running,
     )
 
-    if st.button("🗑️ Clear session", use_container_width=True):
+    if st.button("Clear", use_container_width=True):
         st.session_state.conversation = []
         st.session_state.run_result = None
-        st.session_state.agent_status = "idle"
+        st.session_state.latest_run_id = None
         st.rerun()
 
-    st.markdown('<div class="section-header" style="margin-top:20px">📂 Run History</div>',
-                unsafe_allow_html=True)
+    st.divider()
+
+    st.markdown('<div class="section-label">Run History</div>', unsafe_allow_html=True)
     report_files = get_report_files()
-    selected_report_name = None
     if report_files:
+        # Auto-select latest run if we just completed one
+        default_idx = 0
+        if st.session_state.latest_run_id:
+            latest_name = f"run_{st.session_state.latest_run_id}.md"
+            names = [r.name for r in report_files]
+            if latest_name in names:
+                default_idx = names.index(latest_name)
+
         selected_report_name = st.selectbox(
-            "Previous runs",
+            "History",
             [r.name for r in report_files],
+            index=default_idx,
             key="history_select",
             label_visibility="collapsed",
         )
     else:
-        st.caption("No previous runs yet.")
-
-# ── Hero ───────────────────────────────────────────────────────────────────────
-
-status_map = {
-    "idle":    ("status-dot-idle",    "Ready to audit"),
-    "running": ("status-dot-running", "Agent running — analysing in real time…"),
-    "done":    ("status-dot-done",    "Audit complete"),
-    "error":   ("status-dot-error",   "Run ended with errors"),
-}
-dot_cls, status_text = status_map.get(st.session_state.agent_status, status_map["idle"])
-
-st.markdown(f"""
-<div class="hero">
-  <div class="hero-title">QA Commander Live</div>
-  <div class="hero-sub">Multimodal AI agent that sees interfaces, hears your commands, speaks findings, and creates bug reports</div>
-  <div class="hero-pills">
-    <span class="pill pill-live">● Live</span>
-    <span class="pill">👁 Sees</span>
-    <span class="pill">👂 Hears</span>
-    <span class="pill">🔊 Speaks</span>
-    <span class="pill">📋 Creates</span>
-    <span class="pill" style="margin-left:auto">
-      <span class="status-dot {dot_cls}"></span>
-      <span>{status_text}</span>
-    </span>
-  </div>
-</div>
-""", unsafe_allow_html=True)
+        st.caption("No runs yet.")
+        selected_report_name = None
 
 # ── Run trigger ────────────────────────────────────────────────────────────────
 
 if run_btn and not st.session_state.running:
     if not os.environ.get("GEMINI_API_KEY"):
-        st.error("⚠️ GEMINI_API_KEY environment variable is not set.")
-        st.stop()
+        st.error("GEMINI_API_KEY is not set.")
+    else:
+        user_audio: bytes | None = None
+        if audio_input is not None:
+            try:
+                user_audio = audio_input.read()
+                if not user_audio:
+                    user_audio = None
+            except Exception:
+                user_audio = None
 
-    user_audio: bytes | None = None
-    if audio_input is not None:
-        try:
-            audio_bytes = audio_input.read()
-            user_audio = audio_bytes if audio_bytes else None
-        except Exception:
-            user_audio = None
-    if user_audio:
-        st.session_state.conversation.append({
-            "role": "user",
-            "content": "🎙️ Voice command recorded",
-            "audio": user_audio,
-        })
-    elif text_cmd.strip():
-        st.session_state.conversation.append({
-            "role": "user",
-            "content": f"⌨️ {text_cmd.strip()}",
-        })
+        if user_audio:
+            st.session_state.conversation.append(
+                {"role": "user", "content": "Voice command recorded", "audio": user_audio}
+            )
+        elif text_cmd.strip():
+            st.session_state.conversation.append(
+                {"role": "user", "content": text_cmd.strip()}
+            )
 
-    st.session_state.running = True
-    st.session_state.agent_status = "running"
+        st.session_state.running = True
 
-    def on_turn_callback(step: int, record: StepRecord) -> None:
-        st.session_state.conversation.append({
-            "role": "agent",
-            "step": step,
-            "content": record.agent_narration,
-            "status": record.status,
-            "audio": record.audio_wav,
-            "screenshot": record.screenshot,
-            "findings": record.findings,
-        })
+        def on_turn_callback(step: int, record: StepRecord) -> None:
+            st.session_state.conversation.append(
+                {
+                    "role": "agent",
+                    "step": step,
+                    "content": record.agent_narration,
+                    "status": record.status,
+                    "audio": record.audio_wav,
+                    "screenshot": record.screenshot,
+                    "findings": record.findings,
+                }
+            )
 
-    with st.spinner("🔬 QA Commander is auditing — see · hear · speak · create…"):
-        result = run_live_agent(
-            target_url=target_url,
-            max_steps=max_steps,
-            user_audio=user_audio,
-            user_text=text_cmd.strip() or None,
-            on_turn=on_turn_callback,
-            headless=True,
-        )
+        with st.spinner("Running QA audit…"):
+            result = run_live_agent(
+                target_url=target_url,
+                max_steps=max_steps,
+                user_audio=user_audio,
+                user_text=text_cmd.strip() or None,
+                on_turn=on_turn_callback,
+                headless=True,
+            )
 
-    st.session_state.run_result = result
-    st.session_state.running = False
-    st.session_state.agent_status = "done" if result.success else "error"
-    st.rerun()
+        st.session_state.run_result = result
+        st.session_state.latest_run_id = result.run_id
+        st.session_state.running = False
+        st.rerun()
 
-# ── Load active result ─────────────────────────────────────────────────────────
+# ── Main header ────────────────────────────────────────────────────────────────
 
 result: QARunResult | None = st.session_state.run_result
 
-# ── Metrics bar (when result available) ───────────────────────────────────────
+st.markdown(
+    '<h1 style="font-size:26px;font-weight:700;letter-spacing:-0.03em;margin:0 0 4px 0;color:#fafafa">'
+    "QA Commander</h1>",
+    unsafe_allow_html=True,
+)
 
-if result is not None:
-    render_metrics(result)
+if result:
+    summ = result.summary
+    bugs = result.all_bugs
+    ux = result.all_ux_issues
+    suggestions = result.all_suggestions
+    critical = result.critical_count
+
+    col1, col2, col3, col4 = st.columns(4)
+    with col1:
+        color = "#ef4444" if critical > 0 else "#fafafa"
+        st.markdown(
+            f'<div style="padding:16px 0"><div class="metric-num" style="color:{color}">{critical}</div>'
+            f'<div class="metric-label">Critical Bugs</div></div>',
+            unsafe_allow_html=True,
+        )
+    with col2:
+        color = "#f97316" if len(bugs) > 0 else "#fafafa"
+        st.markdown(
+            f'<div style="padding:16px 0"><div class="metric-num" style="color:{color}">{len(bugs)}</div>'
+            f'<div class="metric-label">Total Bugs</div></div>',
+            unsafe_allow_html=True,
+        )
+    with col3:
+        st.markdown(
+            f'<div style="padding:16px 0"><div class="metric-num" style="color:#3b82f6">{len(ux)}</div>'
+            f'<div class="metric-label">UX Issues</div></div>',
+            unsafe_allow_html=True,
+        )
+    with col4:
+        st.markdown(
+            f'<div style="padding:16px 0"><div class="metric-num" style="color:#10b981">{len(suggestions)}</div>'
+            f'<div class="metric-label">Suggestions</div></div>',
+            unsafe_allow_html=True,
+        )
+    st.divider()
+else:
+    st.markdown(
+        '<p style="color:#52525b;font-size:14px;margin:4px 0 20px 0">'
+        "Enter a URL and run the agent to begin your audit.</p>",
+        unsafe_allow_html=True,
+    )
 
 # ── Tabs ───────────────────────────────────────────────────────────────────────
 
-tab_issues, tab_conv, tab_screenshots, tab_report = st.tabs([
-    "🐛 Issues & Suggestions",
-    "🤖 Agent Live Feed",
-    "📸 Screenshots",
-    "📄 Full Report",
-])
+tab_findings, tab_feed, tab_report, tab_screenshots = st.tabs(
+    ["Findings", "Live Feed", "Report", "Screenshots"]
+)
 
-# ══════════════════════════════════════════════════════════════════════════════
-# Tab 1 — Issues & Suggestions (the main value)
-# ══════════════════════════════════════════════════════════════════════════════
+# ── Tab 1: Findings ────────────────────────────────────────────────────────────
 
-with tab_issues:
+with tab_findings:
     if result is None:
-        st.markdown("""
-<div style="text-align:center;padding:60px 0;color:#8b949e">
-  <div style="font-size:48px;margin-bottom:16px">🔬</div>
-  <div style="font-size:18px;font-weight:600;color:#c9d1d9;margin-bottom:8px">No audit results yet</div>
-  <div style="font-size:14px">Enter a URL and click <strong>Run QA Audit</strong> to begin</div>
-</div>""", unsafe_allow_html=True)
+        st.markdown('<p style="color:#52525b;font-size:14px">No findings yet.</p>', unsafe_allow_html=True)
     else:
         bugs = result.all_bugs
         ux_issues = result.all_ux_issues
         suggestions = result.all_suggestions
 
-        # Two-column layout: bugs + ux issues | suggestions
-        col_left, col_right = st.columns([3, 2])
+        if bugs:
+            st.markdown('<div class="section-label">Bugs</div>', unsafe_allow_html=True)
+            # Sort bugs: critical first
+            severity_order = {"critical": 0, "high": 1, "medium": 2, "low": 3}
+            for f in sorted(bugs, key=lambda x: severity_order.get(x.severity.lower(), 9)):
+                finding_card(f)
 
-        with col_left:
-            if bugs:
-                st.markdown('<div class="section-header">🐛 Bugs Found</div>', unsafe_allow_html=True)
-                # Sort by severity
-                severity_order = {"critical": 0, "high": 1, "medium": 2, "low": 3}
-                for f in sorted(bugs, key=lambda x: severity_order.get(x.severity.lower(), 4)):
-                    st.markdown(issue_card_html(f), unsafe_allow_html=True)
-            else:
-                st.markdown("""
-<div style="background:#0f2a14;border:1px solid #238636;border-radius:8px;padding:16px;margin-bottom:16px">
-  <span style="color:#3fb950;font-weight:600">✅ No bugs detected in this audit pass</span>
-</div>""", unsafe_allow_html=True)
+        if ux_issues:
+            st.markdown('<div class="section-label">UX & Design Issues</div>', unsafe_allow_html=True)
+            for f in ux_issues:
+                finding_card(f)
 
-            if ux_issues:
-                st.markdown('<div class="section-header" style="margin-top:20px">⚠️ UX Issues</div>',
-                            unsafe_allow_html=True)
-                for f in sorted(ux_issues, key=lambda x: severity_order.get(x.severity.lower(), 4)):
-                    st.markdown(issue_card_html(f), unsafe_allow_html=True)
+        if suggestions:
+            st.markdown('<div class="section-label">Suggestions</div>', unsafe_allow_html=True)
+            for f in suggestions:
+                finding_card(f)
 
-        with col_right:
-            if suggestions:
-                st.markdown('<div class="section-header">💡 UX Suggestions</div>', unsafe_allow_html=True)
-                for f in suggestions:
-                    st.markdown(f"""
-<div class="suggestion-card">
-  <div class="suggestion-title">💡 {f.title}</div>
-  <p class="suggestion-desc">{f.description}</p>
-</div>""", unsafe_allow_html=True)
-            else:
-                st.markdown('<div class="section-header">💡 UX Suggestions</div>', unsafe_allow_html=True)
-                st.caption("Suggestions will appear after the audit.")
+        if not bugs and not ux_issues and not suggestions:
+            st.markdown(
+                '<p style="color:#52525b;font-size:14px">No structured findings were parsed. '
+                "Check the Live Feed tab for agent narration.</p>",
+                unsafe_allow_html=True,
+            )
 
-            # Step-level summary timeline
-            if result.steps:
-                st.markdown('<div class="section-header" style="margin-top:24px">⏱ Audit Timeline</div>',
-                            unsafe_allow_html=True)
-                for step in result.steps:
-                    icon = {"PASS": "✅", "WARNING": "⚠️", "FAIL": "❌", "DONE": "🏁", "STOPPED": "🛑"}.get(
-                        step.status, "❓"
-                    )
-                    bugs_in_step = len([f for f in step.findings if f.kind == "bug"])
-                    ux_in_step = len([f for f in step.findings if f.kind == "ux_issue"])
-                    st.markdown(f"""
-<div style="background:#161b22;border:1px solid #30363d;border-radius:6px;padding:10px 14px;margin-bottom:6px;display:flex;justify-content:space-between;align-items:center">
-  <span style="color:#e6edf3;font-size:13px">{icon} Step {step.step}
-    {'<span style="color:#8b949e;font-size:12px"> · '+step.click_target+'</span>' if step.click_target else ''}
-  </span>
-  <span style="font-size:12px;color:#8b949e">{bugs_in_step}B · {ux_in_step}UX</span>
-</div>""", unsafe_allow_html=True)
+# ── Tab 2: Live Feed ───────────────────────────────────────────────────────────
 
-# ══════════════════════════════════════════════════════════════════════════════
-# Tab 2 — Agent Live Feed
-# ══════════════════════════════════════════════════════════════════════════════
-
-with tab_conv:
+with tab_feed:
     if not st.session_state.conversation:
-        st.markdown("""
-<div style="text-align:center;padding:60px 0;color:#8b949e">
-  <div style="font-size:48px;margin-bottom:16px">🤖</div>
-  <div style="font-size:18px;font-weight:600;color:#c9d1d9;margin-bottom:8px">Agent conversation will appear here</div>
-  <div style="font-size:14px">The agent narrates every step as it audits your interface</div>
-</div>""", unsafe_allow_html=True)
+        st.markdown('<p style="color:#52525b;font-size:14px">Run the agent to see the live feed.</p>', unsafe_allow_html=True)
     else:
         for msg in st.session_state.conversation:
             if msg["role"] == "user":
-                st.markdown(f"""
-<div class="chat-user">
-  <div class="chat-label chat-label-user">👤 Tester</div>
-  <div class="chat-text">{msg["content"]}</div>
-</div>""", unsafe_allow_html=True)
+                st.markdown(
+                    f'<div class="agent-turn" style="border-color:#1e2d1e">'
+                    f'<span style="font-size:11px;font-weight:600;color:#4ade80;letter-spacing:0.06em;text-transform:uppercase">Tester</span>'
+                    f'<div style="margin-top:6px;color:#d4d4d8">{msg["content"]}</div></div>',
+                    unsafe_allow_html=True,
+                )
                 if msg.get("audio"):
                     st.audio(msg["audio"], format="audio/wav")
             else:
-                step_num = msg.get("step", "")
+                step = msg.get("step", "")
                 status = msg.get("status", "")
-                status_icon = {"PASS": "✅", "WARNING": "⚠️", "FAIL": "❌", "DONE": "🏁"}.get(status, "")
-                findings: list[ParsedFinding] = msg.get("findings", [])
-                bug_count = len([f for f in findings if f.kind == "bug"])
-                ux_count = len([f for f in findings if f.kind == "ux_issue"])
-
-                st.markdown(f"""
-<div class="chat-agent">
-  <div class="chat-label chat-label-agent">
-    🤖 Agent — Step {step_num} &nbsp; {status_icon}
-    {'<span style="font-size:11px;color:#f85149;margin-left:8px">'+str(bug_count)+' bugs</span>' if bug_count else ''}
-    {'<span style="font-size:11px;color:#e3b341;margin-left:6px">'+str(ux_count)+' UX</span>' if ux_count else ''}
-  </div>
-  <div class="chat-text">{msg.get("content", "")}</div>
-</div>""", unsafe_allow_html=True)
+                status_color = {
+                    "PASS": "#22c55e", "WARNING": "#f59e0b", "FAIL": "#ef4444",
+                    "DONE": "#3b82f6", "STOPPED": "#6b7280"
+                }.get(status, "#6b7280")
+                narration = msg.get("content", "")
+                st.markdown(
+                    f'<div class="agent-turn">'
+                    f'<div style="display:flex;align-items:center;gap:10px;margin-bottom:6px">'
+                    f'<span style="font-size:11px;font-weight:600;color:#71717a;letter-spacing:0.06em;text-transform:uppercase">Step {step}</span>'
+                    f'<span style="font-size:11px;font-weight:600;color:{status_color}">{status}</span>'
+                    f"</div>"
+                    f'<div style="color:#d4d4d8;line-height:1.6">{narration}</div></div>',
+                    unsafe_allow_html=True,
+                )
                 if msg.get("audio"):
                     st.audio(msg["audio"], format="audio/wav")
+                # Show step findings inline
+                step_findings: list[ParsedFinding] = msg.get("findings", [])
+                if step_findings:
+                    with st.expander(f"{len(step_findings)} finding(s) this step"):
+                        for f in step_findings:
+                            finding_card(f)
 
-# ══════════════════════════════════════════════════════════════════════════════
-# Tab 3 — Screenshots
-# ══════════════════════════════════════════════════════════════════════════════
+# ── Tab 3: Report ──────────────────────────────────────────────────────────────
+
+with tab_report:
+    report_to_show: Path | None = None
+
+    if result is not None and result.md_report_path.exists():
+        report_to_show = result.md_report_path
+    elif selected_report_name:
+        candidate = REPORTS_DIR / selected_report_name
+        if candidate.exists():
+            report_to_show = candidate
+
+    if report_to_show:
+        report_text = report_to_show.read_text(encoding="utf-8")
+        st.download_button(
+            "Download report",
+            data=report_text,
+            file_name=report_to_show.name,
+            mime="text/markdown",
+        )
+        st.markdown(report_text)
+    else:
+        st.markdown('<p style="color:#52525b;font-size:14px">No report available.</p>', unsafe_allow_html=True)
+
+# ── Tab 4: Screenshots ─────────────────────────────────────────────────────────
 
 with tab_screenshots:
     screenshots: list[Path] = []
+
     if result is not None:
         screenshots = result.screenshots
     elif selected_report_name:
-        run_id = selected_report_name.replace("run_", "").replace(".md", "")
-        run_dir = SCREENSHOTS_DIR / f"run_{run_id}"
+        run_id_str = selected_report_name.replace("run_", "").replace(".md", "")
+        run_dir = SCREENSHOTS_DIR / f"run_{run_id_str}"
         if run_dir.exists():
             screenshots = sorted(run_dir.glob("step_*.png"), key=lambda p: p.name)
 
     if screenshots:
-        st.markdown(f'<div class="section-header">{len(screenshots)} screenshots captured</div>',
-                    unsafe_allow_html=True)
         cols = st.columns(min(3, len(screenshots)))
         for i, shot in enumerate(screenshots):
             with cols[i % len(cols)]:
-                st.image(str(shot), caption=f"Step {i+1}", use_container_width=True)
+                st.image(str(shot), caption=shot.stem.replace("_", " ").title(), use_container_width=True)
     else:
-        st.markdown("""
-<div style="text-align:center;padding:60px 0;color:#8b949e">
-  <div style="font-size:48px;margin-bottom:16px">📸</div>
-  <div style="font-size:14px">Screenshots appear here after an audit run</div>
-</div>""", unsafe_allow_html=True)
-
-# ══════════════════════════════════════════════════════════════════════════════
-# Tab 4 — Full Report
-# ══════════════════════════════════════════════════════════════════════════════
-
-with tab_report:
-    report_path: Path | None = None
-
-    if result is not None and result.md_report_path.exists():
-        report_path = result.md_report_path
-    elif selected_report_name:
-        candidate = REPORTS_DIR / selected_report_name
-        if candidate.exists():
-            report_path = candidate
-
-    if report_path:
-        report_text = report_path.read_text(encoding="utf-8")
-        col_dl, _ = st.columns([1, 4])
-        with col_dl:
-            st.download_button(
-                "⬇️ Download .md",
-                data=report_text,
-                file_name=report_path.name,
-                mime="text/markdown",
-            )
-        st.markdown(report_text)
-    else:
-        st.markdown("""
-<div style="text-align:center;padding:60px 0;color:#8b949e">
-  <div style="font-size:48px;margin-bottom:16px">📄</div>
-  <div style="font-size:14px">The full Markdown report will appear here after an audit run</div>
-</div>""", unsafe_allow_html=True)
+        st.markdown('<p style="color:#52525b;font-size:14px">Screenshots appear here after a run.</p>', unsafe_allow_html=True)
